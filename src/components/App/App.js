@@ -3,19 +3,34 @@ import 'antd/dist/antd.css';
 import { Layout, Menu, Input, Pagination } from 'antd';
 //import { debounce } from 'lodash';
 import Api from '../Api';
+import WrapperCards from '../WrapperCards';
 
 export default class App extends Component {
   state = {
     movies: [],
+    request: 'return',
     guestSessionId: '',
   };
 
   api = new Api();
 
+  componentDidMount() {
+    this.getGuestSession();
+    this.getQuery();
+  }
+
   getQuery = () => {
-    this.api.getResource().then((result) => {
+    this.api.getResource(this.state.request).then((result) => {
       this.setState({
         movies: result,
+      });
+    });
+  };
+
+  getRated = (sessionId = this.state.guestSessionId) => {
+    this.api.getRatedMovies(sessionId).then((result) => {
+      this.setState({
+        movies: result.results,
       });
     });
   };
@@ -53,7 +68,9 @@ export default class App extends Component {
             style={{ position: 'fixed', height: 54, display: 'flex', maxWidth: 1200 }}
           >
             <Menu.Item key="1">Поиск</Menu.Item>
-            <Menu.Item key="2">Рейтинг</Menu.Item>
+            <Menu.Item key="2" onClick={() => this.getRated()}>
+              Рейтинг
+            </Menu.Item>
           </Menu>
         </Header>
         <Content
@@ -67,17 +84,10 @@ export default class App extends Component {
           }}
         >
           <Input />
-          <div>
-            <button type="button" onClick={this.getQuery}>
-              Сколько фильмов?
-            </button>
-            <button type="button" onClick={this.getGuestSession}>
-              А сколько символов в айди гостевой сессии?
-            </button>
-            <div>{movies.length}</div>
-            <div>{guestSessionId.length}</div>
+          <WrapperCards movies={movies} guestSessionId={guestSessionId} />
+          <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <Pagination />
           </div>
-          <Pagination />
         </Content>
         <Footer />
       </Layout>

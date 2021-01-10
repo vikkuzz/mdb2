@@ -3,19 +3,15 @@ export default class Api {
 
   apiKey = `a7e5001cd9584cae4607d9bc812bcbd1`;
 
-  authentication = `authentication`;
-
-  query = `return`;
-
   page = 1;
 
-  getResource = async () => {
+  getResource = async (request) => {
     const result = await fetch(
-      `${this.baseAddress}search/movie?api_key=${this.apiKey}&query=${this.query}&page=${this.page}`
+      `${this.baseAddress}search/movie?api_key=${this.apiKey}&query=${request}&page=${this.page}`
     );
-    const resultToJson = await result.json();
-    console.log(resultToJson.results);
-    return resultToJson.results;
+    const resultJson = await result.json();
+    console.log(resultJson.results);
+    return resultJson.results;
   };
 
   getGuestSession = async () => {
@@ -24,4 +20,46 @@ export default class Api {
     console.log(resultToJson.guest_session_id);
     return resultToJson.guest_session_id;
   };
+
+  async getGenres() {
+    const res = await fetch(`${this.baseAddress}genre/movie/list?api_key=${this.apiKey}&language=en-US`);
+
+    if (!res.ok) {
+      throw new Error(`Cold not fetch, received ${res.status}`);
+    }
+    const result = await res.json();
+
+    return result.genres;
+  }
+
+  async sendRate(id, stars, sessionId) {
+    const body = {
+      value: stars,
+    };
+
+    const res = await fetch(
+      `${this.baseAddress}movie/${id}/rating?api_key=${this.apiKey}&guest_session_id=${sessionId}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify(body),
+      }
+    );
+
+    const result = await res.json();
+
+    return result;
+  }
+
+  async getRatedMovies(sessionId) {
+    const ratedMovies = await fetch(
+      `${this.baseAddress}guest_session/${sessionId}/rated/movies?api_key=${this.apiKey}&language=en-US&sort_by=created_at.asc`
+    );
+
+    const result = await ratedMovies.json();
+
+    return result;
+  }
 }
