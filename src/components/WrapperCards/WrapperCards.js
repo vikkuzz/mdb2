@@ -53,6 +53,7 @@ export default class WrapperCards extends Component {
             justifyContent: 'space-between',
             border: '3px solid gray',
             boxSizing: 'border-box',
+            background: 'white',
           }}
           key={item.id}
         >

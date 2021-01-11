@@ -3,14 +3,10 @@ export default class Api {
 
   apiKey = `a7e5001cd9584cae4607d9bc812bcbd1`;
 
-  page = 1;
-
-  getResource = async (request) => {
-    const result = await fetch(
-      `${this.baseAddress}search/movie?api_key=${this.apiKey}&query=${request}&page=${this.page}`
-    );
+  getResource = async (request, page = 1) => {
+    const result = await fetch(`${this.baseAddress}search/movie?api_key=${this.apiKey}&query=${request}&page=${page}`);
     const resultJson = await result.json();
-    console.log(resultJson.results);
+
     return resultJson.results;
   };
 

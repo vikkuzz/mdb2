@@ -10,6 +10,7 @@ export default class App extends Component {
     movies: [],
     request: 'return',
     guestSessionId: '',
+    current: 1,
   };
 
   api = new Api();
@@ -20,7 +21,7 @@ export default class App extends Component {
   }
 
   getQuery = () => {
-    this.api.getResource(this.state.request).then((result) => {
+    this.api.getResource(this.state.request, this.state.current).then((result) => {
       this.setState({
         movies: result,
       });
@@ -43,10 +44,18 @@ export default class App extends Component {
     });
   };
 
+  onChange = (page) => {
+    this.setState({
+      current: page,
+    });
+    this.getQuery();
+  };
+
   render() {
     console.log(`App render!`);
-    const { movies, guestSessionId } = this.state;
+    const { movies, guestSessionId, current } = this.state;
     const { Header, Content, Footer } = Layout;
+    console.log(current);
 
     return (
       <Layout>
@@ -67,7 +76,9 @@ export default class App extends Component {
             defaultSelectedKeys={['1']}
             style={{ position: 'fixed', height: 54, display: 'flex', maxWidth: 1200 }}
           >
-            <Menu.Item key="1">Поиск</Menu.Item>
+            <Menu.Item key="1" onClick={() => this.getQuery()}>
+              Поиск
+            </Menu.Item>
             <Menu.Item key="2" onClick={() => this.getRated()}>
               Рейтинг
             </Menu.Item>
@@ -86,7 +97,7 @@ export default class App extends Component {
           <Input />
           <WrapperCards movies={movies} guestSessionId={guestSessionId} />
           <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <Pagination />
+            <Pagination current={current} onChange={this.onChange} total={50} />
           </div>
         </Content>
         <Footer />
